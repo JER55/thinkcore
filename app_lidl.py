@@ -3,7 +3,7 @@
 """
 ThinkCore · Enterprise Retail Scheduling
 Refactored UI – Streamlit interface for generatore_turni_v6.py
-v2.0 – Design system aligned to shift & schedule domain
+v2.0 – Aggressive, commercially appealing design system
 """
 
 import streamlit as st
@@ -22,136 +22,149 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ── DESIGN SYSTEM · COLOUR & TYPOGRAPHY ─────────────────────
-NAVY    = "#0B1D2E"
-SLATE   = "#1B2A3A"
-STEEL   = "#1F3A56"
-AZURE   = "#1C7EEA"    # primary accent
-CYAN    = "#00B4D8"
-MINT    = "#10B981"
-AMBER   = "#F59E0B"
-CRIMSON = "#EF4444"
-ICE     = "#F8FAFC"
-WHITE   = "#FFFFFF"
-MUTED   = "#94A3B8"
-BORDER  = "#E2E8F0"
+# ══════════════════════════════════════════════════════════════
+# DESIGN SYSTEM · AGGRESSIVE / COMMERCIAL PALETTE
+# ══════════════════════════════════════════════════════════════
+DARK_BG    = "#0B1120"
+CARD_BG    = "#131C2E"
+SIDEBAR_BG = "#080C17"
+PRIMARY    = "#00D4FF"   # electric cyan
+SUCCESS    = "#00E676"   # neon green
+WARNING    = "#FFAB40"   # vibrant amber
+DANGER     = "#FF1744"   # hot red
+TEXT       = "#E2E8F0"
+MUTED      = "#8E99A4"
+BORDER     = "#2D3748"
+ACCENT_GLOW = "0 0 12px rgba(0,212,255,0.25)"
 
 # ══════════════════════════════════════════════════════════════
-# GLOBAL CSS – enterprise look & feel
+# GLOBAL CSS – dark, aggressive, commercial
 # ══════════════════════════════════════════════════════════════
 CSS = f"""
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&display=swap');
 
   :root {{
-    --navy: {NAVY};
-    --steel: {STEEL};
-    --azure: {AZURE};
-    --mint: {MINT};
-    --amber: {AMBER};
-    --crimson: {CRIMSON};
-    --ice: {ICE};
-    --white: {WHITE};
+    --bg: {DARK_BG};
+    --card: {CARD_BG};
+    --primary: {PRIMARY};
+    --success: {SUCCESS};
+    --warning: {WARNING};
+    --danger: {DANGER};
+    --text: {TEXT};
     --muted: {MUTED};
     --border: {BORDER};
   }}
 
   html, body, [class*="css"] {{
     font-family: 'Inter', sans-serif;
-    background: {ICE};
-    color: #1E293B;
+    background: {DARK_BG};
+    color: {TEXT};
   }}
 
   /* ── SIDEBAR ── */
   section[data-testid="stSidebar"] {{
-    background: linear-gradient(180deg, {NAVY} 0%, {SLATE} 100%);
-    border-right: 1px solid rgba(255,255,255,0.05);
+    background: {SIDEBAR_BG} !important;
+    border-right: 1px solid rgba(0,212,255,0.1);
   }}
   section[data-testid="stSidebar"] * {{
-    color: {WHITE} !important;
+    color: {TEXT} !important;
   }}
   section[data-testid="stSidebar"] label {{
-    color: #94A3B8 !important;
+    color: {MUTED} !important;
     font-size: .72rem;
-    letter-spacing: .08em;
+    letter-spacing: .1em;
     text-transform: uppercase;
     font-weight: 600;
   }}
   section[data-testid="stSidebar"] .stButton > button {{
-    background: {AZURE} !important;
+    background: {PRIMARY} !important;
     border: none !important;
-    color: white !important;
+    color: {DARK_BG} !important;
     border-radius: 8px !important;
-    font-weight: 600 !important;
-    transition: 0.2s;
+    font-weight: 700 !important;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    box-shadow: 0 0 16px rgba(0,212,255,0.5);
+    transition: all 0.25s;
   }}
   section[data-testid="stSidebar"] .stButton > button:hover {{
-    background: #1665C0 !important;
-    box-shadow: 0 4px 12px rgba(28,126,234,0.4);
+    background: #00E5FF !important;
+    box-shadow: 0 0 24px rgba(0,212,255,0.8);
+    transform: translateY(-1px);
   }}
   section[data-testid="stSidebar"] .stButton > button:disabled {{
-    background: #334155 !important;
-    color: #94A3B8 !important;
+    background: #1E293B !important;
+    color: {MUTED} !important;
     box-shadow: none;
   }}
 
   /* ── TOP BANNER ── */
   .top-banner {{
-    background: linear-gradient(135deg, {NAVY} 0%, {STEEL} 100%);
+    background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
     border-radius: 18px;
-    padding: 36px 48px;
-    margin-bottom: 28px;
-    box-shadow: 0 12px 24px -8px rgba(11,29,46,0.25);
+    padding: 40px 48px;
+    margin-bottom: 32px;
+    box-shadow: 0 20px 40px -12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(0,212,255,0.1);
     position: relative;
     overflow: hidden;
+    border: 1px solid rgba(0,212,255,0.15);
   }}
-  .top-banner::after {{
+  .top-banner::before {{
     content: '';
     position: absolute;
-    right: -40px;
-    bottom: -40px;
-    width: 200px;
-    height: 200px;
-    background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
-    border-radius: 50%;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(0,212,255,0.08) 0%, transparent 70%);
   }}
   .top-banner h1 {{
-    color: {WHITE};
+    color: #FFFFFF;
     margin: 0;
-    font-size: 1.8rem;
+    font-size: 2.1rem;
     font-weight: 700;
     letter-spacing: -0.02em;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    position: relative;
+    z-index: 1;
   }}
   .top-banner p {{
     color: #A0BDDB;
-    margin: 6px 0 0;
-    font-size: .95rem;
+    margin: 8px 0 0;
+    font-size: 1rem;
     font-weight: 400;
+    position: relative;
+    z-index: 1;
   }}
 
   /* ── KPI CARDS ── */
   .kpi-card {{
-    background: {WHITE};
+    background: {CARD_BG};
     border-radius: 14px;
     padding: 24px 28px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 8px rgba(0,0,0,0.03);
-    border-left: 5px solid {AZURE};
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.03);
+    border-left: 5px solid {PRIMARY};
     transition: box-shadow 0.2s;
   }}
-  .kpi-card.warn  {{ border-left-color: {AMBER}; }}
-  .kpi-card.ok    {{ border-left-color: {MINT}; }}
-  .kpi-card.alert {{ border-left-color: {CRIMSON}; }}
+  .kpi-card:hover {{
+    box-shadow: 0 8px 20px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,212,255,0.2);
+  }}
+  .kpi-card.warn  {{ border-left-color: {WARNING}; }}
+  .kpi-card.ok    {{ border-left-color: {SUCCESS}; }}
+  .kpi-card.alert {{ border-left-color: {DANGER}; }}
   .kpi-value {{
     font-family: 'Inter', sans-serif;
-    font-size: 2.2rem;
+    font-size: 2.4rem;
     font-weight: 700;
-    color: {NAVY};
+    color: #FFFFFF;
     line-height: 1;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.4);
   }}
   .kpi-label {{
     font-size: .72rem;
-    letter-spacing: .09em;
+    letter-spacing: .1em;
     text-transform: uppercase;
     color: {MUTED};
     font-weight: 600;
@@ -159,7 +172,7 @@ CSS = f"""
   .kpi-delta {{
     font-size: .85rem;
     font-weight: 500;
-    margin-top: 8px;
+    margin-top: 10px;
     display: flex;
     align-items: center;
     gap: 4px;
@@ -169,17 +182,17 @@ CSS = f"""
   .section-title {{
     font-size: .7rem;
     font-weight: 700;
-    letter-spacing: .12em;
+    letter-spacing: .14em;
     text-transform: uppercase;
     color: {MUTED};
-    margin: 28px 0 14px;
+    margin: 32px 0 16px;
     padding-bottom: 8px;
     border-bottom: 1px solid {BORDER};
   }}
   .viol-pill {{
-    background: #FEF2F2;
-    border: 1px solid #FECACA;
-    color: #991B1B;
+    background: rgba(255,23,68,0.1);
+    border: 1px solid rgba(255,23,68,0.4);
+    color: #FF8A80;
     border-radius: 8px;
     padding: 6px 16px;
     font-size: .82rem;
@@ -189,39 +202,88 @@ CSS = f"""
   }}
   .empty-state {{
     text-align: center;
-    padding: 80px 40px;
+    padding: 100px 40px;
     color: {MUTED};
+  }}
+  .empty-state strong {{
+    color: {PRIMARY};
+  }}
+
+  /* ── INPUTS / WIDGETS ── */
+  .stTextInput > div > div > input {{
+    background: {CARD_BG} !important;
+    color: {TEXT} !important;
+    border: 1px solid {BORDER} !important;
+    border-radius: 8px !important;
+  }}
+  .stSelectbox > div > div > div {{
+    background: {CARD_BG} !important;
+    color: {TEXT} !important;
+    border: 1px solid {BORDER} !important;
+    border-radius: 8px !important;
+  }}
+  .stCheckbox label span {{
+    color: {TEXT} !important;
+  }}
+
+  /* ── DATA FRAMES ── */
+  [data-testid="stDataFrame"] {{
+    background: {CARD_BG} !important;
+    border: 1px solid {BORDER} !important;
+    border-radius: 12px;
+    overflow: hidden;
+  }}
+  [data-testid="stDataFrame"] table {{
+    background: {CARD_BG} !important;
+    color: {TEXT};
+  }}
+  [data-testid="stDataFrame"] th {{
+    background: #1E293B !important;
+    color: {MUTED} !important;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: .72rem;
+    letter-spacing: .05em;
+  }}
+
+  /* ── TABS ── */
+  .stTabs [data-baseweb="tab-list"] {{
+    gap: 4px;
+    background: transparent;
+  }}
+  .stTabs [data-baseweb="tab"] {{
+    border-radius: 12px 12px 0 0;
+    padding: 14px 28px;
+    font-weight: 700;
+    background: transparent;
+    color: {MUTED};
+    letter-spacing: 0.02em;
+    border: none;
+    transition: 0.2s;
+  }}
+  .stTabs [aria-selected="true"] {{
+    background: {CARD_BG} !important;
+    color: {PRIMARY} !important;
+    border-bottom: 3px solid {PRIMARY} !important;
+    box-shadow: 0 -4px 8px rgba(0,0,0,0.3);
+  }}
+
+  /* ── BUTTONS (non-sidebar) ── */
+  .stDownloadButton > button {{
+    background: {PRIMARY} !important;
+    color: {DARK_BG} !important;
+    font-weight: 700;
+    border-radius: 10px;
+    box-shadow: 0 0 12px rgba(0,212,255,0.4);
+    border: none;
   }}
 
   /* ── MISC ── */
   #MainMenu, footer {{ visibility: hidden; }}
   header[data-testid="stHeader"] {{ background: transparent; }}
-  .block-container {{ padding-top: 1.8rem; }}
-  .stTabs [data-baseweb="tab-list"] {{ gap: 2px; background: transparent; }}
-  .stTabs [data-baseweb="tab"] {{
-    border-radius: 10px 10px 0 0;
-    padding: 12px 24px;
-    font-weight: 600;
-    background: transparent;
-    color: {MUTED};
-  }}
-  .stTabs [aria-selected="true"] {{
-    background: {WHITE} !important;
-    color: {AZURE} !important;
-    border-bottom: 3px solid {AZURE} !important;
-  }}
-
-  /* scenario selector styling */
-  .scenario-selector {{
-    background: {WHITE};
-    border-radius: 12px;
-    padding: 12px 20px;
-    margin-bottom: 16px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
-  }}
+  .block-container {{ padding-top: 2rem; }}
 </style>
 """
-
 
 # ══════════════════════════════════════════════════════════════
 # ENGINE & HELPERS (unchanged logic)
@@ -236,7 +298,8 @@ def run_engine(xlsx_path, extra_argv=None):
     try:
         os.chdir(os.path.dirname(os.path.abspath(xlsx_path)))
         sys.argv = argv
-        mod = types.ModuleType('_engine'); mod.__file__ = ENGINE_PATH
+        mod = types.ModuleType('_engine')
+        mod.__file__ = ENGINE_PATH
         src = open(ENGINE_PATH, encoding='utf-8').read()
         with contextlib.redirect_stdout(out_buf), contextlib.redirect_stderr(err_buf):
             try:
@@ -249,7 +312,8 @@ def run_engine(xlsx_path, extra_argv=None):
     return mod, out_buf.getvalue(), err_buf.getvalue()
 
 def kpi(value, label, delta=None, kind='default'):
-    dc = MINT if (delta and ('✅' in str(delta) or '+' in str(delta))) else CRIMSON
+    # Use SUCCESS color for positive delta, DANGER for negative
+    dc = SUCCESS if (delta and ('✅' in str(delta) or '+' in str(delta))) else DANGER
     dh = f'<div class="kpi-delta" style="color:{dc}">{delta}</div>' if delta else ''
     return (f'<div class="kpi-card {kind}"><div class="kpi-value">{value}</div>'
             f'<div class="kpi-label">{label}</div>{dh}</div>')
@@ -266,11 +330,9 @@ class ScenarioView:
         self.idx = idx
         self.seed = sc['seed']
         self.cost = sc['cost']
-        # Static fields from main module
         for attr in ('req_d', 'SLOTS', 'REQ', 'ENTRY', 'CLOSE', 'WEEK',
                      'ASSENTI', 'comp', 'YTD', 'A'):
             setattr(self, attr, getattr(m, attr, None))
-        # Employees with scenario overtime / effective hours
         emp_ot, emp_mh = sc['emp_ot'], sc['emp_mh_eff']
         self.EMP = [dict(e, ot=emp_ot.get(e['id'], e['ot']),
                          mh_eff=emp_mh.get(e['id'], e.get('mh_eff', e['mh'])))
@@ -293,7 +355,7 @@ def scenario_label(sc, idx, is_best):
 DAYS_FULL  = ['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato','Domenica']
 DAYS_SHORT = ['Lun','Mar','Mer','Gio','Ven','Sab','Dom']
 
-# ── CHARTS (identical logic, minor style refinements) ─────
+# ── CHARTS (identical logic, updated with aggressive palette) ─────
 def gantt(m, d):
     rows=[]
     for e in m.EMP:
@@ -307,29 +369,34 @@ def gantt(m, d):
             Ruolo=e['role'],
             OT='★ Straordinario' if m.OT_DAY[e['id']][d]>0 else 'Ordinario'))
     if not rows:
-        return go.Figure().update_layout(paper_bgcolor='rgba(0,0,0,0)',
+        return go.Figure().update_layout(
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)',
             annotations=[dict(text='Nessun turno', showarrow=False,
-                              font=dict(color=MUTED, size=14))])
+                              font=dict(color=MUTED, size=14))]
+        )
     df = pd.DataFrame(rows).sort_values('Inizio')
     fig = px.timeline(df, x_start='Inizio', x_end='Fine', y='Dipendente',
         color='Ruolo',
-        color_discrete_map={'RESP': AZURE, 'ADDETTO': MINT},
+        color_discrete_map={'RESP': PRIMARY, 'ADDETTO': SUCCESS},
         hover_data={'Ore':':.2f', 'OT':True, 'Inizio':False, 'Fine':False},
         labels={'Dipendente':'', 'Ruolo':'Ruolo'})
     fig.update_layout(
-        paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-        font=dict(family='Inter', size=12, color=NAVY),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(11,17,32,0.4)',   # dark chart background
+        font=dict(family='Inter', size=12, color=TEXT),
         margin=dict(l=10, r=10, t=10, b=10),
         height=max(300, len(rows)*34),
-        xaxis=dict(tickformat='%H:%M', gridcolor=BORDER, title=''),
-        yaxis=dict(autorange='reversed', title='', gridcolor=BORDER),
+        xaxis=dict(tickformat='%H:%M', gridcolor=BORDER, title='', color=TEXT),
+        yaxis=dict(autorange='reversed', title='', gridcolor=BORDER, color=TEXT),
         legend=dict(orientation='h', y=1.04, x=1, xanchor='right',
-                    bgcolor='rgba(0,0,0,0)'),
+                    bgcolor='rgba(0,0,0,0)',
+                    font=dict(color=TEXT)),
         bargap=0.28
     )
     entry = m.ENTRY[d]
     close = m.CLOSE[d] if isinstance(m.CLOSE, list) else m.CLOSE
-    for hv, lb, col in [(entry, 'Apertura', '#A0BDDB'), (close, 'Chiusura', AMBER)]:
+    for hv, lb, col in [(entry, 'Apertura', '#8E99A4'), (close, 'Chiusura', WARNING)]:
         t = datetime.datetime(2000,1,1) + datetime.timedelta(hours=hv)
         fig.add_vline(x=t, line_width=1.5, line_dash='dot', line_color=col,
             annotation_text=lb, annotation_position='top right',
@@ -348,18 +415,21 @@ def heatmap(m):
         Z.append(rz); TXT.append(rt)
     tl = [f"{int(s):02d}:{int((s%1)*60):02d}" if i%4==0 else '' for i,s in enumerate(slots[::step])]
     fig = go.Figure(go.Heatmap(z=Z, x=tl, y=DAYS_SHORT, text=TXT, texttemplate='%{text}',
-        textfont=dict(size=8, family='Inter'),
-        colorscale=[[0, CRIMSON], [.4, AMBER], [.55, '#FFFDE7'], [.7, '#C8E6C9'], [1, AZURE]],
+        textfont=dict(size=8, family='Inter', color=TEXT),
+        colorscale=[[0, DANGER], [.4, WARNING], [.55, '#FFFDE7'], [.7, SUCCESS], [1, PRIMARY]],
         zmid=0, showscale=True,
         colorbar=dict(thickness=12,
-            title=dict(text='Surplus/Scoperto', side='right', font=dict(size=10)),
-            tickfont=dict(size=9))))
+            title=dict(text='Surplus/Scoperto', side='right', font=dict(size=10, color=TEXT)),
+            tickfont=dict(size=9, color=TEXT))))
     fig.update_layout(
-        paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-        font=dict(family='Inter', size=11, color=NAVY),
-        margin=dict(l=10, r=10, t=10, b=10), height=260,
-        xaxis=dict(title='', tickangle=-45, tickfont=dict(size=9)),
-        yaxis=dict(title='', autorange='reversed'))
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(11,17,32,0.4)',
+        font=dict(family='Inter', size=11, color=TEXT),
+        margin=dict(l=10, r=10, t=10, b=10),
+        height=260,
+        xaxis=dict(title='', tickangle=-45, tickfont=dict(size=9, color=TEXT), gridcolor=BORDER),
+        yaxis=dict(title='', autorange='reversed', tickfont=dict(color=TEXT))
+    )
     return fig
 
 def daily_bars(m):
@@ -370,15 +440,20 @@ def daily_bars(m):
     fig.add_trace(go.Bar(x=DAYS_SHORT, y=req, name='Richieste',
                          marker_color=BORDER, marker_line_width=0))
     fig.add_trace(go.Bar(x=DAYS_SHORT, y=[s-o for s,o in zip(sch, ot)],
-                         name='Pianificate', marker_color=AZURE, marker_line_width=0))
+                         name='Pianificate', marker_color=PRIMARY, marker_line_width=0))
     fig.add_trace(go.Bar(x=DAYS_SHORT, y=ot, name='Straordinari',
-                         marker_color=AMBER, marker_line_width=0))
+                         marker_color=WARNING, marker_line_width=0))
     fig.update_layout(
-        barmode='overlay', paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-        font=dict(family='Inter', size=12, color=NAVY),
-        margin=dict(l=0, r=0, t=10, b=0), height=260,
-        legend=dict(orientation='h', y=1.05, bgcolor='rgba(0,0,0,0)'),
-        xaxis=dict(gridcolor=BORDER), yaxis=dict(gridcolor=BORDER, title='ore'))
+        barmode='overlay',
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(11,17,32,0.4)',
+        font=dict(family='Inter', size=12, color=TEXT),
+        margin=dict(l=0, r=0, t=10, b=0),
+        height=260,
+        legend=dict(orientation='h', y=1.05, bgcolor='rgba(0,0,0,0)', font=dict(color=TEXT)),
+        xaxis=dict(gridcolor=BORDER, tickfont=dict(color=TEXT)),
+        yaxis=dict(gridcolor=BORDER, title='ore', tickfont=dict(color=TEXT))
+    )
     return fig
 
 def ot_bar(m):
@@ -388,15 +463,18 @@ def ot_bar(m):
         return None
     ns, os_ = zip(*data)
     fig = go.Figure(go.Bar(x=list(os_), y=list(ns), orientation='h',
-                           marker_color=AMBER, marker_line_width=0,
-                           text=[f"{o:.2f}h" for o in os_], textposition='outside'))
+                           marker_color=WARNING, marker_line_width=0,
+                           text=[f"{o:.2f}h" for o in os_], textposition='outside',
+                           textfont=dict(color=TEXT)))
     fig.update_layout(
-        paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-        font=dict(family='Inter', size=11, color=NAVY),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(11,17,32,0.4)',
+        font=dict(family='Inter', size=11, color=TEXT),
         margin=dict(l=0, r=60, t=10, b=0),
         height=max(180, len(data)*38),
-        xaxis=dict(title='ore straordinario', gridcolor=BORDER),
-        yaxis=dict(title='', autorange='reversed'))
+        xaxis=dict(title='ore straordinario', gridcolor=BORDER, tickfont=dict(color=TEXT)),
+        yaxis=dict(title='', autorange='reversed', tickfont=dict(color=TEXT))
+    )
     return fig
 
 
@@ -409,11 +487,11 @@ def main():
     # ── SIDEBAR ──────────────────────────────────────────────
     with st.sidebar:
         st.markdown("""
-        <div style="display:flex; align-items:center; gap:12px; margin-bottom: 24px;">
-          <div style="font-size:2.2rem;">⏱️</div>
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom: 32px;">
+          <div style="font-size:2.4rem; filter: drop-shadow(0 0 12px rgba(0,212,255,0.6));">⏱️</div>
           <div>
-            <div style="font-weight:700; font-size:1.2rem; color:white; line-height:1.2;">ThinkCore</div>
-            <div style="font-size:0.7rem; color:#94A3B8; letter-spacing:.05em;">TURNI RETAIL</div>
+            <div style="font-weight:700; font-size:1.3rem; color:white; line-height:1.2;">ThinkCore</div>
+            <div style="font-size:0.7rem; color:#8E99A4; letter-spacing:.06em;">TURNI RETAIL</div>
           </div>
         </div>
         """, unsafe_allow_html=True)
@@ -500,11 +578,11 @@ def main():
     if r is None:
         st.markdown(f"""
         <div class="empty-state">
-          <div style="font-size:3.2rem; margin-bottom:12px;">📂</div>
-          <div style="font-size:1.2rem; font-weight:600; color:#334155;">
-            Carica il modello Excel e premi <strong style="color:{AZURE};">GENERA TURNI</strong>
+          <div style="font-size:3.6rem; margin-bottom:16px; filter: drop-shadow(0 0 12px rgba(0,212,255,0.3));">📂</div>
+          <div style="font-size:1.3rem; font-weight:600; color:#E2E8F0;">
+            Carica il modello Excel e premi <strong>GENERA TURNI</strong>
           </div>
-          <div style="font-size:.85rem; margin-top:8px;">
+          <div style="font-size:.9rem; margin-top:10px; color:{MUTED};">
             Il motore elabora organico, fabbisogno, riposi e vincoli CCNL in automatico
           </div>
         </div>
@@ -522,8 +600,6 @@ def main():
         cur = st.session_state.get('scenario_idx', best_idx)
         options = list(range(len(scenari)))
 
-        # custom HTML pill selector for a cleaner look (still uses selectbox underneath)
-        st.markdown('<div class="scenario-selector">', unsafe_allow_html=True)
         sel = st.selectbox(
             "Confronta gli scenari generati da --compare",
             options=options,
@@ -531,10 +607,8 @@ def main():
             format_func=lambda i: scenario_label(scenari[i], i, i == best_idx),
             label_visibility='collapsed'
         )
-        st.markdown('</div>', unsafe_allow_html=True)
         st.session_state.scenario_idx = sel
 
-        # quick scenario badges
         cols = st.columns(min(5, len(scenari)))
         for i, sc in enumerate(scenari[:len(cols)]):
             with cols[i]:
@@ -546,7 +620,7 @@ def main():
         st.session_state.scenario_idx = 0
         active = ScenarioView(m, 0)
 
-    # ── WRITE OUTPUT XLSX (only when needed) ───────────────
+    # ── WRITE OUTPUT XLSX (unchanged) ──────────────────────
     write_key = f"{r['xlsx_path']}::{active.idx}"
     if st.session_state.get('_write_key') != write_key:
         try:
@@ -566,7 +640,7 @@ def main():
             r['write_error'] = str(ex)
         st.session_state['_write_key'] = write_key
 
-    m = active  # now all tabs read from the selected scenario
+    m = active
 
     # ── KEY METRICS ────────────────────────────────────────
     tot_req = sum(m.req_d)
@@ -599,7 +673,7 @@ def main():
             kind='ok' if viol_n == 0 else ('warn' if viol_n <= 4 else 'alert')
         ), unsafe_allow_html=True)
 
-    st.markdown("<div style='height:20px'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:24px'></div>", unsafe_allow_html=True)
 
     # ── TABS ────────────────────────────────────────────────
     t1, t2, t3, t4, t5 = st.tabs([
@@ -631,10 +705,10 @@ def main():
 
         def style_rota(val):
             if val == 'R':
-                return f'background:{ICE}; color:{MUTED}; font-weight:500; text-align:center'
+                return f'background:{DARK_BG}; color:{MUTED}; font-weight:500; text-align:center'
             if '★' in str(val):
-                return f'background:{AMBER}22; color:{NAVY}; font-weight:600; text-align:center; font-size:.8rem'
-            return 'text-align:center; font-size:.8rem'
+                return f'background:rgba(255,171,64,0.15); color:{TEXT}; font-weight:600; text-align:center; font-size:.8rem'
+            return 'text-align:center; font-size:.8rem; color: {TEXT};'
 
         _sf = getattr(df_rota.style, 'map', None) or getattr(df_rota.style, 'applymap')
         styled = _sf(style_rota, subset=DAYS_SHORT)
@@ -679,16 +753,18 @@ def main():
             st.markdown('<div class="section-title">Ore per attività</div>', unsafe_allow_html=True)
             df_c = pd.DataFrame(comp_data, columns=['Attività', 'Ore'])
             fig_c = px.bar(df_c, x='Ore', y='Attività', orientation='h', color='Ore',
-                           color_continuous_scale=[[0, ICE], [1, AZURE]], text='Ore')
-            fig_c.update_traces(texttemplate='%{text:.1f}h', textposition='outside')
+                           color_continuous_scale=[[0, DARK_BG], [1, PRIMARY]], text='Ore')
+            fig_c.update_traces(texttemplate='%{text:.1f}h', textposition='outside',
+                                textfont=dict(color=TEXT))
             fig_c.update_layout(
-                paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)',
+                plot_bgcolor='rgba(11,17,32,0.4)',
                 coloraxis_showscale=False,
                 height=max(320, len(comp_data) * 30),
                 margin=dict(l=0, r=60, t=10, b=0),
-                font=dict(family='Inter', size=11, color=NAVY),
-                yaxis=dict(autorange='reversed', title=''),
-                xaxis=dict(title='ore/settimana', gridcolor=BORDER)
+                font=dict(family='Inter', size=11, color=TEXT),
+                yaxis=dict(autorange='reversed', title='', tickfont=dict(color=TEXT)),
+                xaxis=dict(title='ore/settimana', gridcolor=BORDER, tickfont=dict(color=TEXT))
             )
             st.plotly_chart(fig_c, width='stretch')
 
