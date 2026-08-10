@@ -1,0 +1,21 @@
+# cache Python
+__pycache__/
+*.pyc
+
+# dati reali / generati dal motore — NON versionare
+TOOL_LIDL.xlsx
+Turni_generati_*.xlsx
+Turni_ultimo.xlsx
+*_export.csv
+rota_history.csv
+rota_boundary.csv
+straordinari_log.csv
+
+# segreti locali (token GitHub, ecc.) — MAI committare
+.streamlit/secrets.toml
+
+# ambienti virtuali / editor
+.venv/
+venv/
+.vscode/
+.idea/
