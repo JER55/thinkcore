@@ -797,7 +797,83 @@ def build():
                         fixed = True; break
             if not fixed:
                 break
-    return shifts, P, PR, SEAM_BRIDGE
+
+    # ---------------- riparazione generale (apertura/chiusura + copertura) ----------------
+    # Estende ai casi "apertura/chiusura sotto soglia" e "copertura generica"
+    # LA STESSA logica già usata sopra per il presidio RESP: micro-estensione
+    # di un turno esistente (<= REPAIR_MAX_EXT ore), sempre filtrata da
+    # ok_rest() e dal tetto --max-ore-giorno, MAI su chi ha un orario fisso
+    # quel giorno. Non sposta mai un turno intero e non tocca stacco tra
+    # settimane o vincoli fissi: quei casi restano violazioni segnalate,
+    # non "riparate" — vedi REPAIR_LOG per cosa è stato effettivamente
+    # applicato (usato da app_lidl.py per mostrarlo in chiaro).
+    REPAIR_MAX_EXT = 0.5  # h, stesso margine usato sopra per i ponti RESP
+    REPAIR_LOG = []
+
+    def _repair_extend(eid, d, target, direction):
+        """direction='start': porta l'inizio turno a `target`.
+        direction='end':   porta la fine turno a `target + 0.25`.
+        Ritorna True se applicata. Non tocca mai i giorni con orario fisso."""
+        if d in EMP[eid]['fixed_shift']:
+            return False
+        a0, b0 = shifts[eid][d]
+        if direction == 'end':
+            new_a, new_b = a0, target + 0.25
+            delta = new_b - b0
+            if delta <= 1e-9 or delta > REPAIR_MAX_EXT + 1e-9: return False
+            if new_b > CLOSE[d] + 1e-9: return False
+        else:
+            new_a, new_b = target, b0
+            delta = a0 - new_a
+            if delta <= 1e-9 or delta > REPAIR_MAX_EXT + 1e-9: return False
+            if new_a < ENTRY[d] - 1e-9: return False
+        if DUR[eid][d] + delta > A.max_ore_giorno + 1e-9: return False
+        if not ok_rest(eid, d, new_a, new_b): return False
+        cover(d, a0, b0, -1, eid); cover(d, new_a, new_b, 1, eid)
+        shifts[eid][d] = (new_a, new_b); DUR[eid][d] += delta
+        EMP[eid]['ot'] = EMP[eid].get('ot', 0.0) + delta
+        EMP[eid]['mh_eff'] = EMP[eid].get('mh_eff', EMP[eid]['mh']) + delta
+        REPAIR_LOG.append((d, EMP[eid]['name'], round(delta * 60), direction))
+        return True
+
+    for d in range(7):
+        # 1) apertura sotto soglia: allarga l'inizio del turno più vicino
+        for _ in range(4):
+            op = sum(1 for i in working[d] if abs(shifts[i][d][0] - ENTRY[d]) < 1e-9)
+            if op >= MIN_AP:
+                break
+            cands = sorted((i for i in working[d] if shifts[i][d][0] > ENTRY[d]),
+                           key=lambda i: shifts[i][d][0])
+            if not cands or not _repair_extend(cands[0], d, ENTRY[d], 'start'):
+                break
+        # 2) chiusura sotto soglia: allarga la fine del turno più vicino
+        for _ in range(4):
+            cl = sum(1 for i in working[d] if abs(shifts[i][d][1] - CLOSE[d]) < 1e-9)
+            if cl >= MIN_CH:
+                break
+            cands = sorted((i for i in working[d] if shifts[i][d][1] < CLOSE[d]),
+                           key=lambda i: -shifts[i][d][1])
+            if not cands or not _repair_extend(cands[0], d, CLOSE[d] - 0.25, 'end'):
+                break
+        # 3) copertura generica residua (oltre al presidio RESP, già risolto sopra)
+        for _ in range(8):
+            holes = [i for i in range(63) if P[d][i] < REQ[d][i]]
+            if not holes:
+                break
+            hi = holes[0]; th = SLOTS[hi]
+            order = sorted((i for i in working[d] if d not in EMP[i]['fixed_shift']),
+                           key=lambda i: min(abs(shifts[i][d][1] - th), abs(shifts[i][d][0] - th)))
+            applied = False
+            for eid in order:
+                a0, b0 = shifts[eid][d]
+                if b0 <= th and _repair_extend(eid, d, th, 'end'):
+                    applied = True; break
+                if a0 > th and _repair_extend(eid, d, th, 'start'):
+                    applied = True; break
+            if not applied:
+                break
+
+    return shifts, P, PR, SEAM_BRIDGE, REPAIR_LOG
 
 # Esegui la generazione (se --compare > 1, genera più scenari e scegli il migliore)
 def evaluate_scenario(shifts, P, PR, SEAM_BRIDGE):
@@ -877,14 +953,14 @@ def _full_validate(shifts_loc, P_loc, PR_loc):
                 v.append(f'nessun responsabile {DAYS[d]} {int(t)}:{int((t%1)*60):02d}')
     return v
 
-def _scenario_extra(sh, P_, PR_, SB_):
+def _scenario_extra(sh, P_, PR_, SB_, RL_=None):
     """Cattura tutti i dati necessari a ricostruire uno scenario nella UI
     (Streamlit), senza dover rigenerare i turni da capo."""
     sched_s = [sum(DUR[i][d] for i in working[d]) for d in range(7)]
     dlabel_s = {e['id']: ['P' if d in e['forced_p'] else ('R' if sh[e['id']][d] is None else None)
                           for d in range(7)] for e in EMP}
     return dict(
-        shifts=sh, P=P_, PR=PR_, SEAM_BRIDGE=SB_,
+        shifts=sh, P=P_, PR=PR_, SEAM_BRIDGE=SB_, REPAIR_LOG=RL_ or [],
         DUR=copy.deepcopy(DUR), OT_DAY=copy.deepcopy(OT_DAY),
         sched=sched_s, day_label=dlabel_s,
         tot_ot=sum(e['ot'] for e in EMP),
@@ -907,25 +983,25 @@ if A.compare > 1:
         _restore_state(base_snap)
         SEED = _seed
         random.seed(_seed)
-        sh, P_, PR_, SB_ = build()
+        sh, P_, PR_, SB_, RL_ = build()
         cost_s, viol_s = evaluate_scenario(sh, P_, PR_, SB_)
-        extra = _scenario_extra(sh, P_, PR_, SB_)   # legge DUR/OT_DAY/EMP prima del restore
+        extra = _scenario_extra(sh, P_, PR_, SB_, RL_)   # legge DUR/OT_DAY/EMP prima del restore
         won = _snapshot_state()
         SCENARI.append(dict(seed=_seed, cost=cost_s, viol_n=viol_s, snapshot=won, **extra))
         key = (viol_s, cost_s)
         if best is None or key < best[0]:
-            best = (key, _seed, sh, P_, PR_, SB_, won)
+            best = (key, _seed, sh, P_, PR_, SB_, won, RL_)
     _restore_state(best[6])
     SEED = best[1]
-    shifts, P, PR, SEAM_BRIDGE = best[2], best[3], best[4], best[5]
+    shifts, P, PR, SEAM_BRIDGE, REPAIR_LOG = best[2], best[3], best[4], best[5], best[7]
     BEST_SCENARIO_IDX = best[1]
     print(f'\n[--compare] Valutati {A.compare} scenari -> scelto seed={best[1]} '
           f'(violazioni={best[0][0]}, costo_relativo={best[0][1]:.1f}). '
           f'NB: i riposi sono fissati prima di build(), quindi la variazione è nei soli turni. '
           f'Tutti i {A.compare} scenari restano disponibili in SCENARI per il confronto.')
 else:
-    shifts, P, PR, SEAM_BRIDGE = build()
-    extra = _scenario_extra(shifts, P, PR, SEAM_BRIDGE)
+    shifts, P, PR, SEAM_BRIDGE, REPAIR_LOG = build()
+    extra = _scenario_extra(shifts, P, PR, SEAM_BRIDGE, REPAIR_LOG)
     SCENARI.append(dict(seed=0, cost=None, viol_n=len(extra['viol']),
                         snapshot=_snapshot_state(), **extra))
     BEST_SCENARIO_IDX = 0
@@ -986,6 +1062,14 @@ if SEAM_BRIDGE:
     for d, nm, mins in SEAM_BRIDGE:
         print(f'  {DAYS[d]}: {nm} esteso di {mins} min per garantire un responsabile continuo.')
     print(f'  Totale: {sum(m for _,_,m in SEAM_BRIDGE)} min di presidio responsabile aggiunti.')
+
+if REPAIR_LOG:
+    print('\n=== RIPARAZIONI AUTOMATICHE (apertura/chiusura/copertura) ===')
+    for d, nm, mins, direz in REPAIR_LOG:
+        verso = 'anticipato inizio' if direz == 'start' else 'posticipata fine'
+        print(f'  {DAYS[d]}: {nm} — {verso} di {mins} min per coprire un buco residuo.')
+    print(f'  Totale: {sum(m for _,_,m,_ in REPAIR_LOG)} min aggiunti, {len(REPAIR_LOG)} interventi. '
+          f'Ogni minuto qui è straordinario extra non pianificato da --auto-ot: controllalo nel foglio Straordinari.')
 
 print('\n=== COMPOSIZIONE ORE RICHIESTE ===')
 for nome, ore in comp:

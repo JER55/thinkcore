@@ -674,6 +674,7 @@ class ScenarioView:
         self.OT_DAY = sc['OT_DAY']
         self.DUR = sc['DUR']
         self.SEAM_BRIDGE = sc['SEAM_BRIDGE']
+        self.REPAIR_LOG = sc.get('REPAIR_LOG', [])
         self.sched = sc['sched']
         self.DAY_LABEL = sc['day_label']
         self.viol = sc['viol']
@@ -1663,6 +1664,17 @@ def main():
                         unsafe_allow_html=True)
             st.dataframe(pd.DataFrame([{'Giorno': DAYS_SHORT[d], 'Dipendente': nm, 'Minuti': mins}
                                        for d, nm, mins in sb]), width='stretch', hide_index=True)
+        rl = getattr(m, 'REPAIR_LOG', [])
+        if rl:
+            st.markdown('<div class="section-title">Riparazioni automatiche'
+                        '<span class="st-note">apertura/chiusura/copertura sistemate dal motore</span></div>',
+                        unsafe_allow_html=True)
+            st.dataframe(pd.DataFrame([{'Giorno': DAYS_SHORT[d], 'Dipendente': nm, 'Minuti': mins,
+                                        'Tipo': 'Anticipato inizio' if direz == 'start' else 'Posticipata fine'}
+                                       for d, nm, mins, direz in rl]), width='stretch', hide_index=True)
+            st.caption("Ogni riga qui è straordinario extra non pianificato da --auto-ot: "
+                       "sono micro-estensioni (≤30 min) applicate automaticamente per chiudere "
+                       "un buco residuo, sempre rispettando lo stacco di 11h e il tetto ore/giorno.")
 
     # TAB 5 ── CONSOLE
     with t5:
