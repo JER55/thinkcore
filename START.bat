@@ -6,7 +6,6 @@ echo  ================================================
 echo    ThinkCore - Plan Intelligence - Gestione Turni Retail
 echo  ================================================
 echo.
-echo  Installazione dipendenze (prima volta)...
 pip install streamlit plotly pandas openpyxl -q
 echo.
 echo  Avvio applicazione...

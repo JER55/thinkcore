@@ -48,7 +48,13 @@ except Exception:
 
 
 def _github_cfg():
-    cfg = _SECRETS.get('github') if hasattr(_SECRETS, 'get') else None
+    # st.secrets è pigro: se NON esiste alcun secrets.toml, accedere a .get()
+    # solleva StreamlitSecretNotFoundError (Streamlit recenti) invece di dare None.
+    # Racchiudo l'accesso così l'app parte comunque in modalità 'local'.
+    try:
+        cfg = _SECRETS.get('github') if hasattr(_SECRETS, 'get') else None
+    except Exception:
+        cfg = None
     if not cfg or not cfg.get('token') or not cfg.get('repo'):
         return None
     return dict(token=cfg['token'], repo=cfg['repo'], path=cfg.get('path', 'data').strip('/'))

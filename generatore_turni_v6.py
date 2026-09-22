@@ -127,18 +127,18 @@ for sh in ('Personale', 'Parametri', 'OreRichieste', 'Casse'):
         raise UserError(f'Foglio "{sh}" non trovato nel modello. Usa il modello originale o aggiungi il foglio mancante.')
 p, cas, orich, pers = wb['Parametri'], wb['Casse'], wb['OreRichieste'], wb['Personale']
 
-ENTRY = [hours(need(p.cell(row=63, column=2+d).value,
-                   f'Parametri riga 63 colonna {get_column_letter(2+d)}',
-                   'Inserisci un orario di ingresso per ogni giorno (riga 63).'))
+ENTRY = [hours(need(p.cell(row=68, column=2+d).value,
+                   f'Parametri riga 68 colonna {get_column_letter(2+d)}',
+                   'Inserisci un orario di ingresso per ogni giorno (riga 68).'))
          for d in range(7)]
-CLOSE    = [hours(need(p.cell(row=64, column=2+d).value,
-                   f'Parametri riga 64 colonna {get_column_letter(2+d)}',
-                   'Inserisci un orario di uscita per ogni giorno (riga 64).'))
+CLOSE    = [hours(need(p.cell(row=69, column=2+d).value,
+                   f'Parametri riga 69 colonna {get_column_letter(2+d)}',
+                   'Inserisci un orario di uscita per ogni giorno (riga 69).'))
             for d in range(7)]
-STACCO   = float(need(p['B65'].value, 'Parametri B65', 'Inserisci il numero di ore di riposo minimo (B65).'))
-MIN_PRES = int(need(p['B66'].value, 'Parametri B66', 'Inserisci il minimo di persone contemporaneamente (B66).'))
-MIN_AP   = int(need(p['B67'].value, 'Parametri B67', 'Inserisci il minimo di persone all\'apertura (B67).'))
-MIN_CH   = int(need(p['B68'].value, 'Parametri B68', 'Inserisci il minimo di persone alla chiusura (B68).'))
+STACCO   = float(need(p['B70'].value, 'Parametri B70', 'Inserisci le ore di stacco minimo (B70).'))
+MIN_PRES = int(need(p['B71'].value, 'Parametri B71', 'Inserisci il minimo di persone contemporanee (B71).'))
+MIN_AP   = int(need(p['B72'].value, 'Parametri B72', 'Inserisci il minimo di persone all\'apertura (B72).'))
+MIN_CH   = int(need(p['B73'].value, 'Parametri B73', 'Inserisci il minimo di persone alla chiusura (B73).'))
 PRES_SCO = int(need(p['B17'].value, 'Parametri B17', 'Inserisci il presidio SCO (B17).'))
 
 casse = [[need(cas.cell(row=6+f, column=2+d).value,
