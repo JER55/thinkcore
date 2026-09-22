@@ -156,7 +156,7 @@ Personale (colonne L–S: riposi/permessi/turni fissi per giorno).
 
 ## A chi è adatto
 
-Pensato per un discount Lidl, ma la logica — copertura minima per
+Pensato per un discount, ma la logica — copertura minima per
 fascia oraria, staff polivalente senza reparti fissi, rotazione
 responsabili, vincoli di riposo CCNL — è comune a gran parte dei
 supermercati e discount di medie dimensioni. Adattarlo a un altro
@@ -169,5 +169,4 @@ non solo dei parametri.
 
 ## Licenza
 
-Uso interno / proprietario — adattare secondo necessità prima di
-pubblicare il repo.
+Uso interno / proprietario — 
